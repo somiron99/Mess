@@ -9,10 +9,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { Upload, X } from "lucide-react"
 
 export default function PostAdPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [images, setImages] = useState<File[]>([])
   const [formData, setFormData] = useState({
     type: "",
     title: "",
@@ -30,12 +32,16 @@ export default function PostAdPage() {
     setLoading(true)
 
     try {
+      // In a real app, upload images to cloud storage first
+      const imageUrls = images.map((_, index) => `https://example.com/image-${index + 1}.jpg`)
+
       const response = await fetch("/api/ads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
           budget: parseInt(formData.budget),
+          images: imageUrls,
         }),
       })
 
@@ -54,6 +60,19 @@ export default function PostAdPage() {
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    if (images.length + files.length > 5) {
+      alert("Maximum 5 images allowed")
+      return
+    }
+    setImages(prev => [...prev, ...files])
+  }
+
+  const removeImage = (index: number) => {
+    setImages(prev => prev.filter((_, i) => i !== index))
   }
 
   return (
@@ -104,6 +123,53 @@ export default function PostAdPage() {
                     placeholder="Describe your listing..."
                     rows={4}
                   />
+                </div>
+
+                <div>
+                  <Label>Images (Optional)</Label>
+                  <div className="mt-2">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      id="image-upload"
+                    />
+                    <Label
+                      htmlFor="image-upload"
+                      className="flex items-center justify-center w-full h-32 border-2 border-dashed border-muted-foreground/25 rounded-lg cursor-pointer hover:border-muted-foreground/50 transition-colors"
+                    >
+                      <div className="text-center">
+                        <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
+                        <p className="text-sm text-muted-foreground">
+                          Click to upload images (max 5)
+                        </p>
+                      </div>
+                    </Label>
+                  </div>
+                  {images.length > 0 && (
+                    <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {images.map((image, index) => (
+                        <div key={index} className="relative">
+                          <img
+                            src={URL.createObjectURL(image)}
+                            alt={`Upload ${index + 1}`}
+                            className="w-full h-24 object-cover rounded-lg"
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="absolute -top-2 -right-2 h-6 w-6 p-0"
+                            onClick={() => removeImage(index)}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">

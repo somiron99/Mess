@@ -9,6 +9,10 @@ export async function GET(request: NextRequest) {
     const minBudget = searchParams.get("minBudget")
     const maxBudget = searchParams.get("maxBudget")
     const gender = searchParams.get("gender")
+    const smoker = searchParams.get("smoker")
+    const jobType = searchParams.get("jobType")
+    const search = searchParams.get("search")
+    const sortBy = searchParams.get("sortBy") || "newest"
 
     const where: any = {}
 
@@ -17,6 +21,33 @@ export async function GET(request: NextRequest) {
     if (minBudget) where.budget = { ...where.budget, gte: parseInt(minBudget) }
     if (maxBudget) where.budget = { ...where.budget, lte: parseInt(maxBudget) }
     if (gender) where.gender = gender
+    if (smoker) where.smoker = smoker === "true" ? true : smoker === "false" ? false : undefined
+    if (jobType) where.jobType = jobType
+
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { location: { contains: search, mode: 'insensitive' } }
+      ]
+    }
+
+    let orderBy: any = { createdAt: "desc" }
+    switch (sortBy) {
+      case "oldest":
+        orderBy = { createdAt: "asc" }
+        break
+      case "price-low":
+        orderBy = { budget: "asc" }
+        break
+      case "price-high":
+        orderBy = { budget: "desc" }
+        break
+      case "newest":
+      default:
+        orderBy = { createdAt: "desc" }
+        break
+    }
 
     const ads = await getPrisma().ad.findMany({
       where,
@@ -25,7 +56,7 @@ export async function GET(request: NextRequest) {
           select: { name: true, phone: true }
         }
       },
-      orderBy: { createdAt: "desc" }
+      orderBy
     })
 
     return NextResponse.json(ads)

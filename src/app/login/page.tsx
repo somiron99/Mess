@@ -48,7 +48,8 @@ export default function LoginPage() {
     })
 
     if (response.ok) {
-      alert("Sign up successful! Please log in.")
+      const data = await response.json()
+      alert(data.message || "Sign up successful! Please check your email to verify your account before logging in.")
       setIsSignUp(false)
     } else {
       const error = await response.json()
@@ -100,6 +101,11 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+            </div>
+            <div className="text-right">
+              <Button variant="link" asChild className="p-0 h-auto text-sm">
+                <Link href="/forgot-password">Forgot password?</Link>
+              </Button>
             </div>
             <Button type="submit" disabled={loading} className="w-full">
               {loading ? (isSignUp ? "Signing up..." : "Signing in...") : (isSignUp ? "Sign Up" : "Sign In")}
