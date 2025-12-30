@@ -7,8 +7,13 @@ const { Pool } = require('pg');
 
 const connectionString = process.env.DATABASE_URL;
 
-// Create a new pool
-const pool = new Pool({ connectionString });
+// Create a new pool with SSL configuration
+const pool = new Pool({
+  connectionString,
+  ssl: {
+    rejectUnauthorized: false, // Allow self-signed certificates
+  }
+});
 
 // Create the Prisma Client with the adapter
 const adapter = new PrismaPg(pool);
