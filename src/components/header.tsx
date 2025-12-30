@@ -13,25 +13,32 @@ export function Header() {
   const [open, setOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center">
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" className="mr-2 px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden">
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">Toggle Menu</span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="pr-0">
-            <Link href="/" className="flex items-center" onClick={() => setOpen(false)}>
-              <span className="font-bold">MessMate</span>
-            </Link>
-            <div className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
-              <div className="flex flex-col space-y-3">
-                <Link href="/browse" onClick={() => setOpen(false)}>Browse Ads</Link>
-                {session && <Link href="/dashboard" onClick={() => setOpen(false)}>Dashboard</Link>}
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+      <div className="container mx-auto px-4">
+        <div className="flex h-14 items-center justify-between">
+          {/* Mobile menu button */}
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="sm" className="md:hidden">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle Menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-64">
+              <Link href="/" className="flex items-center mb-6" onClick={() => setOpen(false)}>
+                <span className="font-bold text-lg">MessMate</span>
+              </Link>
+              <div className="flex flex-col space-y-4">
+                <Link href="/browse" onClick={() => setOpen(false)} className="text-sm font-medium">
+                  Browse Ads
+                </Link>
+                {session && (
+                  <Link href="/dashboard" onClick={() => setOpen(false)} className="text-sm font-medium">
+                    Dashboard
+                  </Link>
+                )}
                 {session ? (
-                  <Button variant="ghost" onClick={() => { signOut(); setOpen(false); }}>
+                  <Button variant="ghost" onClick={() => { signOut(); setOpen(false); }} className="justify-start">
                     Logout
                   </Button>
                 ) : (
@@ -40,41 +47,44 @@ export function Header() {
                   </Button>
                 )}
               </div>
-            </div>
-          </SheetContent>
-        </Sheet>
-        <div className="mr-4 hidden md:flex">
-          <Link href="/" className="mr-6 flex items-center space-x-2">
-            <span className="hidden font-bold sm:inline-block">
-              MessMate
-            </span>
+            </SheetContent>
+          </Sheet>
+
+          {/* Logo */}
+          <Link href="/" className="flex items-center">
+            <span className="font-bold text-lg">MessMate</span>
           </Link>
-          <nav className="flex items-center space-x-6 text-sm font-medium">
-            <Link href="/browse">Browse Ads</Link>
-            {session && <Link href="/dashboard">Dashboard</Link>}
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-6">
+            <Link href="/browse" className="text-sm font-medium hover:text-primary transition-colors">
+              Browse Ads
+            </Link>
+            {session && (
+              <Link href="/dashboard" className="text-sm font-medium hover:text-primary transition-colors">
+                Dashboard
+              </Link>
+            )}
           </nav>
-        </div>
-        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <div className="w-full flex-1 md:w-auto md:flex-none">
-            {/* Search can go here later */}
-          </div>
-          <nav className="flex items-center space-x-2">
+
+          {/* Right side actions */}
+          <div className="flex items-center space-x-2">
             {session ? (
               <>
-                <span className="hidden text-sm md:inline">Welcome, {session.user?.name}</span>
-                <Button variant="ghost" onClick={() => signOut()}>
+                <span className="hidden lg:inline text-sm text-muted-foreground">
+                  Welcome, {session.user?.name}
+                </span>
+                <Button variant="ghost" size="sm" onClick={() => signOut()}>
                   Logout
                 </Button>
               </>
             ) : (
-              <div className="hidden md:flex">
-                <Button asChild>
-                  <Link href="/login">Login / Sign Up</Link>
-                </Button>
-              </div>
+              <Button asChild size="sm" className="hidden md:inline-flex">
+                <Link href="/login">Login / Sign Up</Link>
+              </Button>
             )}
             <ModeToggle />
-          </nav>
+          </div>
         </div>
       </div>
     </header>
