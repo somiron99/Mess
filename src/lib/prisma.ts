@@ -6,15 +6,11 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
-const connectionString = process.env.DATABASE_URL!
+// Modify connection string to disable SSL verification
+const connectionString = process.env.DATABASE_URL!.replace('sslmode=require', 'sslmode=no-verify')
 
-// Create a new pool with SSL configuration
-const pool = new Pool({
-  connectionString,
-  ssl: {
-    rejectUnauthorized: false, // Allow self-signed certificates
-  }
-})
+// Create a new pool
+const pool = new Pool({ connectionString })
 
 // Create the Prisma Client with the adapter
 const adapter = new PrismaPg(pool)

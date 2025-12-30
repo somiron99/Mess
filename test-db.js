@@ -5,15 +5,13 @@ const { PrismaClient } = require('@prisma/client');
 const { PrismaPg } = require('@prisma/adapter-pg');
 const { Pool } = require('pg');
 
-const connectionString = process.env.DATABASE_URL;
+// Modify connection string to disable SSL verification
+const connectionString = process.env.DATABASE_URL.replace('sslmode=require', 'sslmode=no-verify');
 
-// Create a new pool with SSL configuration
-const pool = new Pool({
-  connectionString,
-  ssl: {
-    rejectUnauthorized: false, // Allow self-signed certificates
-  }
-});
+console.log('Modified connection string:', connectionString);
+
+// Create a new pool
+const pool = new Pool({ connectionString });
 
 // Create the Prisma Client with the adapter
 const adapter = new PrismaPg(pool);
